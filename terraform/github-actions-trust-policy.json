@@ -12,7 +12,7 @@
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:Alamgir00/kubemind-aws-devops:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub": "repo:Alamgir00@46954227/kubemind-aws-devops@1364813519:ref:refs/heads/main"
         }
       }
     }
