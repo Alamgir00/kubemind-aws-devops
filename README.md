@@ -1,193 +1,254 @@
-🚀 KubeMind AI --- AWS DevOps CI/CD Hands-On Lab
 
-End-to-end hands-on project: GitHub → GitHub Actions → OIDC → AWS
-IAM → ECR → ECS Fargate → ALB → Flask
+Yes. Below is the **complete final `README.md` content**.
 
-Region: ap-south-1 (Mumbai)
-Repository: Alamgir00/kubemind-aws-devops
+**Just copy everything inside the single code block and paste it directly into `README.md`.**
 
-Table of Contents
+````markdown
+# 🚀 KubeMind AI — Production-Grade AWS DevOps CI/CD
 
-Project Overview
+<p align="center">
 
-Architecture
+<b>End-to-End AWS DevOps Hands-On Project</b>
 
-Technology Stack
+</p>
 
-Repository Structure
+<p align="center">
 
-Prerequisites
+GitHub → GitHub Actions → OIDC → AWS IAM → ECR → ECS Fargate → ALB → Flask
 
-Phase 1 --- Application
+</p>
 
-Phase 2 --- Docker
+---
 
-Phase 3 --- Tests
+## 📌 Project Overview
 
-Phase 4 --- ECR
+**KubeMind AI** is an end-to-end AWS DevOps and Cloud Engineering hands-on project.
 
-Phase 5 --- Terraform Backend
+The project demonstrates how to take a Python Flask application from source code to a production-style containerized deployment on AWS.
 
-Phase 6 --- Terraform
-Infrastructure
+The complete platform uses:
 
-Phase 7 --- ECS Verification
+- Python
+- Flask
+- Gunicorn
+- Pytest
+- Docker
+- Terraform
+- Amazon VPC
+- Amazon ECR
+- Amazon ECS
+- AWS Fargate
+- Application Load Balancer
+- Amazon CloudWatch
+- AWS IAM
+- GitHub
+- GitHub Actions
+- GitHub OIDC
 
-Phase 8 --- GitHub Repository
+The final deployment follows this flow:
 
-Phase 9 --- GitHub OIDC
+```text
+Developer
+    |
+    | git push
+    v
+GitHub Repository
+    |
+    v
+GitHub Actions
+    |
+    +-----------------------+
+    |                       |
+    v                       v
+Run Tests              GitHub OIDC
+                            |
+                            v
+                        AWS STS
+                            |
+                            v
+                     AWS IAM Role
+                            |
+                +-----------+-----------+
+                |                       |
+                v                       v
+               ECR                    ECS
+                |                       |
+                |                 Task Definition
+                |                       |
+                v                       v
+          Docker Image             Fargate Tasks
+                                        |
+                                        v
+                                       ALB
+                                        |
+                                        v
+                                KubeMind AI
+````
 
-Phase 10 --- GitHub Actions
+---
 
-Phase 11 --- End-to-End
-Verification
+# 🎯 Project Objectives
 
-IAM Security Model
+The main objectives of this project are:
 
-Troubleshooting
+1. Build a Python Flask application.
+2. Write automated unit tests.
+3. Containerize the application using Docker.
+4. Store Docker images in Amazon ECR.
+5. Create AWS infrastructure using Terraform.
+6. Build a secure VPC architecture.
+7. Deploy the application to ECS Fargate.
+8. Expose the application through an Application Load Balancer.
+9. Configure CloudWatch logging.
+10. Configure GitHub OIDC authentication.
+11. Remove the need for long-lived AWS credentials in GitHub.
+12. Build a GitHub Actions CI/CD pipeline.
+13. Automatically test, build, push, and deploy the application.
+14. Use Git commit SHA as an immutable Docker image tag.
+15. Verify the deployment through the ALB.
 
-Useful Commands
+---
 
-Production Hardening Roadmap
+# 🏗️ Final Architecture
 
-Lessons Learned
+## AWS Runtime Architecture
 
-Final Checklist
-
-1. Project Overview
-
-KubeMind AI is a hands-on DevOps laboratory that builds a containerized
-Flask application and deploys it to AWS using Infrastructure as Code and
-automated CI/CD.
-
-The final deployment provides:
-
-Terraform-managed AWS infrastructure
-
-Docker containerization
-
-Amazon ECR image registry
-
-Amazon ECS Fargate
-
-Application Load Balancer
-
-Private ECS subnets
-
-CloudWatch logs
-
-GitHub Actions CI/CD
-
-GitHub OIDC authentication
-
-Short-lived AWS credentials
-
-Git-SHA image tagging
-
-Automated tests before deployment
-
-The final runtime was validated with 2/2 ECS tasks running, an
-ACTIVE ECS service, a healthy ALB target group, / returning the
-application message, and /health returning {"status":"healthy"}.
-
-2. Architecture
-
-Application/runtime architecture
-
+```text
                          INTERNET
+                            |
                             |
                          HTTP :80
                             |
                             v
-                 +----------------------+
-                 | Application Load     |
-                 | Balancer             |
-                 +----------+-----------+
-                            |
+                 +-----------------------+
+                 | Application Load      |
+                 | Balancer              |
+                 |                       |
+                 | kubemind-dev-alb      |
+                 +-----------+-----------+
+                             |
+                             |
                          HTTP :8080
-                            |
-                            v
-                 +----------------------+
-                 | Target Group         |
-                 +----------+-----------+
-                            |
-              +-------------+-------------+
-              |                           |
-              v                           v
-      +------------------+        +------------------+
-      | ECS Fargate      |        | ECS Fargate      |
-      | Task 1           |        | Task 2           |
-      | Private Subnet A |        | Private Subnet B |
-      | :8080            |        | :8080            |
-      +------------------+        +------------------+
+                             |
+                             v
+                 +-----------------------+
+                 | Target Group          |
+                 | kubemind-dev-tg       |
+                 +-----------+-----------+
+                             |
+                +------------+------------+
+                |                         |
+                v                         v
+       +------------------+       +------------------+
+       | ECS Fargate      |       | ECS Fargate      |
+       | Task 1           |       | Task 2           |
+       |                  |       |                  |
+       | Private Subnet A |       | Private Subnet B |
+       | Port 8080        |       | Port 8080        |
+       +------------------+       +------------------+
+                |                         |
+                +------------+------------+
+                             |
+                             v
+                     Docker Container
+                             |
+                             v
+                       Flask + Gunicorn
+```
 
-CI/CD architecture
+---
 
-Developer
-   |
-   | git push main
-   v
-GitHub Repository
-   |
-   v
-GitHub Actions
-   |
-   +--> pytest
-   |
-   +--> GitHub OIDC
-   |       |
-   |       v
-   |   AWS STS / IAM
-   |
-   +--> Docker Build
-   |
-   +--> Docker Push
-           |
-           v
-       Amazon ECR
-           |
-           v
-       ECS Task Definition
-           |
-           v
-       ECS Fargate
-           |
-           v
-          ALB
-           |
-           v
-     KubeMind AI
+# 🔄 CI/CD Architecture
 
-3. Technology Stack
+```text
+                       DEVELOPER
+                           |
+                           |
+                     git push main
+                           |
+                           v
+                  +----------------+
+                  |    GitHub      |
+                  |   Repository   |
+                  +-------+--------+
+                          |
+                          v
+                 +-------------------+
+                 |  GitHub Actions   |
+                 +---------+---------+
+                           |
+             +-------------+-------------+
+             |                           |
+             v                           v
+        Python Tests                GitHub OIDC
+             |                           |
+             |                           v
+             |                       AWS STS
+             |                           |
+             |                           v
+             |                    AWS IAM Role
+             |                           |
+             |                 +---------+---------+
+             |                 |                   |
+             |                 v                   v
+             |                ECR                 ECS
+             |                 |                   |
+             |                 |            Task Definition
+             |                 |                   |
+             |                 +-------------------+
+             |                                     |
+             |                                     v
+             |                              Fargate Tasks
+             |                                     |
+             +-------------------------------------+
+                                                   |
+                                                   v
+                                                  ALB
+                                                   |
+                                                   v
+                                            KubeMind AI
+```
 
-Layer            Technology
+---
 
-Application      Python 3.12 / Flask
-Server           Gunicorn
-Testing          Pytest
-Container        Docker
-IaC              Terraform
-Cloud            AWS
-Registry         Amazon ECR
-Compute          Amazon ECS Fargate
-Load Balancer    Application Load Balancer
-Network          Amazon VPC
-Logs             CloudWatch
-CI/CD            GitHub Actions
-Authentication   GitHub OIDC
-State            Amazon S3
-Source Control   GitHub
+# 🧰 Technology Stack
 
-4. Repository Structure
+| Layer              | Technology                | Purpose                      |
+| ------------------ | ------------------------- | ---------------------------- |
+| Application        | Python 3.12 + Flask       | Web application              |
+| Application Server | Gunicorn                  | Production WSGI server       |
+| Testing            | Pytest                    | Automated testing            |
+| Container          | Docker                    | Application containerization |
+| Infrastructure     | Terraform                 | Infrastructure as Code       |
+| Cloud              | AWS                       | Cloud platform               |
+| Registry           | Amazon ECR                | Docker image storage         |
+| Compute            | Amazon ECS Fargate        | Serverless container runtime |
+| Load Balancer      | Application Load Balancer | HTTP traffic routing         |
+| Networking         | Amazon VPC                | Network isolation            |
+| Logging            | Amazon CloudWatch         | Application/container logs   |
+| Authentication     | GitHub OIDC               | Keyless AWS authentication   |
+| IAM                | AWS IAM                   | Access control               |
+| CI/CD              | GitHub Actions            | Automated deployment         |
+| State              | Amazon S3                 | Terraform remote state       |
+| Source Control     | GitHub                    | Source code management       |
 
+---
+
+# 📁 Repository Structure
+
+```text
 kubemind-aws-devops/
+│
 ├── app/
 │   ├── Dockerfile
 │   ├── requirements.txt
+│   │
 │   ├── src/
 │   │   └── app.py
+│   │
 │   └── tests/
 │       └── test_app.py
+│
 ├── terraform/
 │   ├── backend.tf
 │   ├── providers.tf
@@ -203,69 +264,347 @@ kubemind-aws-devops/
 │   ├── ecs_service.tf
 │   ├── github-actions-trust-policy.json
 │   └── github-actions-permissions-policy.json
+│
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml
+│
 ├── .gitignore
 └── README.md
+```
 
-5. Prerequisites
+---
 
-Install:
+# ☁️ AWS Environment
 
+## AWS Region
+
+```text
+ap-south-1
+```
+
+AWS Region:
+
+```text
+Mumbai
+```
+
+---
+
+## VPC
+
+```text
+CIDR: 10.0.0.0/16
+```
+
+---
+
+## Public Subnets
+
+```text
+Public Subnet A
+10.0.0.0/24
+
+Public Subnet B
+10.0.1.0/24
+```
+
+---
+
+## Private Subnets
+
+```text
+Private Subnet A
+10.0.10.0/24
+
+Private Subnet B
+10.0.11.0/24
+```
+
+---
+
+## Application
+
+```text
+kubemind-app
+```
+
+---
+
+## ECR Repository
+
+```text
+kubemind-app
+```
+
+---
+
+## ECS Cluster
+
+```text
+kubemind-dev-cluster
+```
+
+---
+
+## ECS Service
+
+```text
+kubemind-dev-service
+```
+
+---
+
+## ECS Task Definition
+
+```text
+kubemind-dev-app
+```
+
+---
+
+## CloudWatch Log Group
+
+```text
+/ecs/kubemind-dev
+```
+
+---
+
+# 🛠️ Prerequisites
+
+Install the following tools:
+
+* Git
+* Docker
+* Python 3.12
+* Terraform
+* AWS CLI
+* GitHub account
+* AWS account
+
+Verify the installations:
+
+```bash
 git --version
 docker --version
 python3 --version
 terraform version
 aws --version
+```
+
+---
+
+# 🔐 AWS Authentication
 
 Verify AWS identity:
 
+```bash
 aws sts get-caller-identity
+```
 
-This lab used an EC2 IAM role for AWS CLI/Terraform access instead of
-static AWS access keys.
+Example:
 
-Set the region:
+```json
+{
+    "UserId": "...",
+    "Account": "...",
+    "Arn": "..."
+}
+```
 
+Set AWS region:
+
+```bash
 export AWS_DEFAULT_REGION=ap-south-1
-aws configure set region ap-south-1
+```
 
-6. Phase 1 --- Application
+Optional:
+
+```bash
+aws configure set region ap-south-1
+```
+
+---
+
+# 🚀 Phase 1 — Create the Project
 
 Create the project:
 
+```bash
 mkdir -p /home/ec2-user/.alamgir/kubemind-aws-devops
+```
+
+Move into the project:
+
+```bash
 cd /home/ec2-user/.alamgir/kubemind-aws-devops
+```
 
-mkdir -p app/src app/tests terraform .github/workflows
+Create directories:
 
+```bash
+mkdir -p app/src
+mkdir -p app/tests
+mkdir -p terraform
+mkdir -p .github/workflows
+```
+
+Verify:
+
+```bash
+find . -maxdepth 3 -type f
+```
+
+---
+
+# 🐍 Phase 2 — Create Flask Application
+
+Create:
+
+```text
 app/src/app.py
+```
 
+Content:
+
+```python
 from flask import Flask
 
 app = Flask(__name__)
+
 
 @app.route("/")
 def home():
     return "🚀 KubeMind AI is running!"
 
+
 @app.route("/health")
 def health():
     return {"status": "healthy"}
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+```
 
+---
+
+# 📦 Phase 3 — Python Dependencies
+
+Create:
+
+```text
 app/requirements.txt
+```
 
+Content:
+
+```text
 Flask
 gunicorn
+```
 
-7. Phase 2 --- Docker
+---
 
+# 🧪 Phase 4 — Automated Tests
+
+Create:
+
+```text
+app/tests/test_app.py
+```
+
+Content:
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(
+    0,
+    str(Path(__file__).resolve().parents[1] / "src")
+)
+
+from app import app
+
+
+def test_home():
+    client = app.test_client()
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "KubeMind AI is running" in response.get_data(
+        as_text=True
+    )
+
+
+def test_health():
+    client = app.test_client()
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "status": "healthy"
+    }
+```
+
+---
+
+# 📥 Install Python Dependencies
+
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops/app
+```
+
+Install:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Install pytest:
+
+```bash
+python3 -m pip install pytest
+```
+
+---
+
+# ✅ Run Tests
+
+```bash
+pytest -v
+```
+
+Expected:
+
+```text
+============================= test session starts =============================
+
+collected 2 items
+
+tests/test_app.py::test_home PASSED
+tests/test_app.py::test_health PASSED
+
+============================== 2 passed ==============================
+```
+
+---
+
+# 🐳 Phase 5 — Dockerize Application
+
+Create:
+
+```text
 app/Dockerfile
+```
 
+Content:
+
+```dockerfile
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -279,125 +618,246 @@ COPY src/ .
 EXPOSE 8080
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+```
+
+---
+
+# 🏗️ Build Docker Image
+
+Move into the application directory:
+
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops/app
+```
 
 Build:
 
-cd app
+```bash
 docker build -t kubemind-app:latest .
+```
 
-Run:
+Verify:
 
+```bash
+docker images
+```
+
+Expected:
+
+```text
+kubemind-app
+```
+
+---
+
+# ▶️ Run Docker Container
+
+```bash
 docker run -d \
   --name kubemind-app \
   -p 8080:8080 \
   kubemind-app:latest
+```
 
-Test:
+Verify:
 
+```bash
+docker ps
+```
+
+---
+
+# 🧪 Test Docker Container
+
+Test application:
+
+```bash
 curl http://localhost:8080/
-curl http://localhost:8080/health
+```
 
 Expected:
 
+```text
 🚀 KubeMind AI is running!
+```
 
-and:
+Test health:
 
-{"status":"healthy"}
-
-Clean up:
-
-docker stop kubemind-app
-docker rm kubemind-app
-
-8. Phase 3 --- Tests
-
-app/tests/test_app.py
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from app import app
-
-def test_home():
-    client = app.test_client()
-    response = client.get("/")
-    assert response.status_code == 200
-    assert "KubeMind AI is running" in response.get_data(as_text=True)
-
-def test_health():
-    client = app.test_client()
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.get_json() == {"status": "healthy"}
-
-Run:
-
-cd app
-python3 -m pip install -r requirements.txt
-python3 -m pip install pytest
-pytest -v
+```bash
+curl http://localhost:8080/health
+```
 
 Expected:
 
-2 passed
+```json
+{
+  "status": "healthy"
+}
+```
 
-9. Phase 4 --- ECR
+Stop:
+
+```bash
+docker stop kubemind-app
+```
+
+Remove:
+
+```bash
+docker rm kubemind-app
+```
+
+---
+
+# 📦 Phase 6 — Amazon ECR
 
 Create the ECR repository:
 
+```bash
 aws ecr create-repository \
   --repository-name kubemind-app \
   --region ap-south-1
+```
 
-Get the URI:
+If the repository already exists, AWS will report that it exists. In that case, continue.
 
+---
+
+# 🔎 Get ECR Repository URI
+
+```bash
 aws ecr describe-repositories \
   --repository-names kubemind-app \
   --region ap-south-1 \
   --query 'repositories[0].repositoryUri' \
   --output text
+```
+
+Expected format:
+
+```text
+ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kubemind-app
+```
+
+---
+
+# 🔐 Login to Amazon ECR
+
+Set your AWS account ID dynamically:
+
+```bash
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+  --query Account \
+  --output text)
+```
 
 Login:
 
-aws ecr get-login-password --region ap-south-1 |
+```bash
+aws ecr get-login-password \
+  --region ap-south-1 |
 docker login \
   --username AWS \
-  --password-stdin ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
+  --password-stdin \
+  ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com
+```
 
-Build:
+Expected:
 
-cd app
-docker build -t kubemind-app:latest .
+```text
+Login Succeeded
+```
 
-Tag:
+---
 
+# 🏷️ Tag Docker Image
+
+```bash
 docker tag \
   kubemind-app:latest \
-  ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kubemind-app:v1
-
-Push:
-
-docker push \
-  ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kubemind-app:v1
+  ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/kubemind-app:v1
+```
 
 Verify:
 
+```bash
+docker images
+```
+
+---
+
+# ⬆️ Push Docker Image
+
+```bash
+docker push \
+  ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/kubemind-app:v1
+```
+
+Verify:
+
+```bash
 aws ecr describe-images \
   --repository-name kubemind-app \
   --region ap-south-1
+```
 
-10. Phase 5 --- Terraform Backend
+---
 
-Terraform state should not be committed to Git.
+# 🏗️ Phase 7 — Terraform Infrastructure
 
-The lab uses an S3 backend with encryption, versioning, and the native
-Terraform S3 lockfile.
+Terraform manages the AWS infrastructure.
 
-terraform/backend.tf
+The infrastructure includes:
 
+```text
+VPC
+│
+├── Internet Gateway
+│
+├── Public Subnet A
+│   ├── NAT Gateway
+│   └── Application Load Balancer
+│
+├── Public Subnet B
+│
+├── Private Subnet A
+│   └── ECS Fargate Task
+│
+├── Private Subnet B
+│   └── ECS Fargate Task
+│
+├── Route Tables
+│
+├── Security Groups
+│
+├── Target Group
+│
+├── ECS Cluster
+│
+├── ECS Service
+│
+├── Task Definition
+│
+├── IAM Roles
+│
+└── CloudWatch Logs
+```
+
+---
+
+# 💾 Phase 8 — Terraform Remote State
+
+Terraform state is stored in Amazon S3.
+
+Example:
+
+```text
+kubemind-terraform-state-ACCOUNT_ID-ap-south-1
+```
+
+Terraform backend:
+
+```hcl
 terraform {
   backend "s3" {
     bucket       = "kubemind-terraform-state-ACCOUNT_ID-ap-south-1"
@@ -407,148 +867,337 @@ terraform {
     use_lockfile = true
   }
 }
+```
+
+The state should never be committed to Git.
+
+---
+
+# 🔒 Terraform State Security
+
+The `.gitignore` should include:
+
+```gitignore
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform.tfstate.lock.info
+```
+
+The Terraform dependency lock file should remain tracked:
+
+```text
+.terraform.lock.hcl
+```
+
+---
+
+# ⚙️ Phase 9 — Terraform Initialization
+
+Move into Terraform:
+
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops/terraform
+```
 
 Initialize:
 
-cd terraform
+```bash
 terraform init
+```
 
-Format:
+Expected:
 
+```text
+Terraform has been successfully initialized!
+```
+
+---
+
+# 🧹 Format Terraform
+
+```bash
 terraform fmt -recursive
+```
 
-Validate:
+---
 
+# ✅ Validate Terraform
+
+```bash
 terraform validate
+```
 
-Plan:
+Expected:
 
+```text
+Success! The configuration is valid.
+```
+
+---
+
+# 📋 Terraform Plan
+
+```bash
 terraform plan
+```
 
-Apply:
+Review all resources before applying.
 
+---
+
+# 🚀 Terraform Apply
+
+```bash
 terraform apply
+```
 
-Review the plan before confirming.
+Review the plan.
 
-11. Phase 6 --- Terraform Infrastructure
+Enter:
 
-The Terraform layer provisions:
+```text
+yes
+```
 
-VPC 10.0.0.0/16
-|
-+-- Public Subnet A 10.0.0.0/24
-|     +-- NAT Gateway
-|     +-- ALB
-|
-+-- Public Subnet B 10.0.1.0/24
-|
-+-- Private Subnet A 10.0.10.0/24
-|     +-- ECS Fargate
-|
-+-- Private Subnet B 10.0.11.0/24
-      +-- ECS Fargate
+when ready.
 
-Additional resources:
+---
 
-Internet Gateway
+# 🌐 Network Architecture
 
-Route tables
+The project uses:
 
-NAT gateway
+```text
+VPC
+10.0.0.0/16
+```
 
-ALB security group
+Public subnets:
 
-ECS security group
+```text
+10.0.0.0/24
+10.0.1.0/24
+```
 
-Application Load Balancer
+Private subnets:
 
-Target group on port 8080
+```text
+10.0.10.0/24
+10.0.11.0/24
+```
 
-Health check /health
+Architecture:
 
-ECS cluster
+```text
+                         INTERNET
+                            |
+                            v
+                    Internet Gateway
+                            |
+                +-----------+-----------+
+                |                       |
+                v                       v
+        Public Subnet A         Public Subnet B
+                |
+                |
+          +-----+------+
+          |            |
+          v            v
+      NAT Gateway     ALB
+                         |
+                         |
+                    Target Group
+                         |
+              +----------+----------+
+              |                     |
+              v                     v
+       Private Subnet A      Private Subnet B
+              |                     |
+              v                     v
+       ECS Fargate Task      ECS Fargate Task
+```
 
-ECS service
+---
 
-ECS task definition
+# 🔐 Security Group Architecture
 
-CloudWatch log group
+## ALB Security Group
 
-ECS execution role
+Inbound:
 
-Security model:
+```text
+TCP 80
+Source: 0.0.0.0/0
+```
 
+## ECS Security Group
+
+Inbound:
+
+```text
+TCP 8080
+Source: ALB Security Group
+```
+
+Therefore:
+
+```text
 Internet
-   |
-   | TCP 80
-   v
-ALB Security Group
-   |
-   | TCP 8080
-   v
-ECS Security Group
-   |
-   v
-Fargate Tasks
+    |
+    | TCP 80
+    v
+   ALB
+    |
+    | TCP 8080
+    v
+   ECS
+```
 
-The ECS security group accepts application traffic only from the ALB
-security group.
+The ECS tasks are not directly exposed to the internet.
 
-12. Phase 7 --- ECS Verification
+---
 
-Check the cluster:
+# 🚢 Phase 10 — Amazon ECS Fargate
 
-aws ecs describe-clusters \
-  --clusters kubemind-dev-cluster
+ECS Cluster:
 
-Check the service:
+```text
+kubemind-dev-cluster
+```
 
-aws ecs describe-services \
-  --cluster kubemind-dev-cluster \
-  --services kubemind-dev-service
+ECS Service:
+
+```text
+kubemind-dev-service
+```
+
+Task Definition:
+
+```text
+kubemind-dev-app
+```
+
+Desired count:
+
+```text
+2
+```
+
+Architecture:
+
+```text
+                 ECS Service
+                     |
+            +--------+--------+
+            |                 |
+            v                 v
+       Fargate Task 1    Fargate Task 2
+       Private AZ-A      Private AZ-B
+```
+
+Running two tasks provides basic availability across two Availability Zones.
+
+---
+
+# 🩺 ECS Health Check
+
+Target Group:
+
+```text
+Port:
+8080
+
+Protocol:
+HTTP
+
+Health Check:
+ /health
+
+Success Matcher:
+200
+```
+
+Application response:
+
+```json
+{
+  "status": "healthy"
+}
+```
 
 Expected:
 
-Desired = 2
-Running = 2
-Pending = 0
-Status  = ACTIVE
+```text
+Target 1 → healthy
+Target 2 → healthy
+```
 
-List tasks:
+---
 
-aws ecs list-tasks \
-  --cluster kubemind-dev-cluster \
-  --service-name kubemind-dev-service
+# 📊 CloudWatch Logs
 
-Check target health:
+CloudWatch log group:
 
-aws elbv2 describe-target-health \
-  --target-group-arn TARGET_GROUP_ARN
+```text
+/ecs/kubemind-dev
+```
 
-Expected:
+ECS sends container logs to CloudWatch.
 
-healthy
-healthy
+Check:
 
-13. Phase 8 --- GitHub Repository
+```bash
+aws logs describe-log-groups \
+  --log-group-name-prefix /ecs/kubemind-dev
+```
+
+---
+
+# 🐙 Phase 11 — GitHub Repository
 
 Repository:
 
-https://github.com/Alamgir00/kubemind-aws-devops
+```text
+Alamgir00/kubemind-aws-devops
+```
 
-Initialize:
+Initialize Git:
 
+```bash
 cd /home/ec2-user/.alamgir/kubemind-aws-devops
+
 git init
+```
 
 Add remote:
 
+```bash
 git remote add origin \
 https://github.com/Alamgir00/kubemind-aws-devops.git
+```
 
+Check:
+
+```bash
+git remote -v
+```
+
+---
+
+# 🚫 `.gitignore`
+
+Create:
+
+```text
 .gitignore
+```
 
+Content:
+
+```gitignore
 # Terraform
 .terraform/
 *.tfstate
@@ -572,26 +1221,66 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+```
+
+---
+
+# 📤 Push Project to GitHub
+
+Check:
+
+```bash
+git status
+```
+
+Add:
+
+```bash
+git add .
+```
 
 Commit:
 
-git add .
+```bash
 git commit -m "Add KubeMind AWS DevOps platform"
+```
+
+Set main:
+
+```bash
+git branch -M main
+```
 
 Push:
 
-git branch -M main
+```bash
 git push -u origin main
+```
 
-14. Phase 9 --- GitHub OIDC
+---
 
-Why OIDC?
+# 🔐 Phase 12 — GitHub OIDC
 
-The deployment does not store long-lived AWS access keys in GitHub.
+## Why OIDC?
 
+A traditional GitHub deployment may use AWS access keys:
+
+```text
 GitHub Actions
       |
-      | OIDC JWT
+      | AWS Access Key
+      v
+     AWS
+```
+
+This requires storing long-lived credentials.
+
+KubeMind uses OIDC instead:
+
+```text
+GitHub Actions
+      |
+      | OIDC Token
       v
 GitHub OIDC Provider
       |
@@ -600,46 +1289,66 @@ AWS STS
       |
       | AssumeRoleWithWebIdentity
       v
-IAM Role
+AWS IAM Role
       |
       v
-Temporary AWS credentials
+Temporary AWS Credentials
+```
 
-GitHub recommends OIDC for obtaining short-lived AWS credentials instead
-of storing long-lived AWS credentials as secrets.
+Advantages:
 
-OIDC provider
+* No long-lived AWS access keys
+* Short-lived credentials
+* Repository-specific trust
+* Branch-specific trust
+* Reduced credential management
+* Better security posture
 
-Provider URL:
+---
 
-https://token.actions.githubusercontent.com
+# 🆔 GitHub Repository IDs
 
-Audience:
+For the KubeMind repository:
 
-sts.amazonaws.com
+```text
+Owner ID:
+46954227
 
-Repository IDs
+Repository ID:
+1364813519
+```
 
-The lab repository returned:
+Retrieve them:
 
+```bash
+curl -s \
+  https://api.github.com/repos/Alamgir00/kubemind-aws-devops |
+jq '{owner_id: .owner.id, repo_id: .id, full_name: .full_name}'
+```
+
+Expected:
+
+```json
 {
   "owner_id": 46954227,
   "repo_id": 1364813519,
   "full_name": "Alamgir00/kubemind-aws-devops"
 }
+```
 
-Command:
+---
 
-curl -s \
-  https://api.github.com/repos/Alamgir00/kubemind-aws-devops |
-jq '{owner_id: .owner.id, repo_id: .id, full_name: .full_name}'
-
-Trust policy
+# 🔑 GitHub OIDC Trust Policy
 
 File:
 
+```text
 terraform/github-actions-trust-policy.json
+```
 
+Content:
+
+```json
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -660,29 +1369,162 @@ terraform/github-actions-trust-policy.json
     }
   ]
 }
+```
 
-Apply:
+Replace:
 
+```text
+ACCOUNT_ID
+```
+
+with your AWS account ID.
+
+You can retrieve it:
+
+```bash
+aws sts get-caller-identity \
+  --query Account \
+  --output text
+```
+
+---
+
+# 🔄 Apply OIDC Trust Policy
+
+```bash
 aws iam update-assume-role-policy \
   --role-name kubemind-github-actions-role \
   --policy-document file://terraform/github-actions-trust-policy.json
+```
 
-Verify:
+Expected:
 
+```text
+No output
+```
+
+No output means the command completed successfully.
+
+---
+
+# 🔎 Verify OIDC Trust Policy
+
+```bash
 aws iam get-role \
   --role-name kubemind-github-actions-role \
   --query 'Role.AssumeRolePolicyDocument' \
   --output json
+```
 
-The trust policy is deliberately restricted to the repository and main
-branch.
+Verify that the policy contains:
 
-15. Phase 10 --- GitHub Actions
+```text
+sts.amazonaws.com
+```
 
-File:
+and:
 
+```text
+repo:Alamgir00@46954227/kubemind-aws-devops@1364813519:ref:refs/heads/main
+```
+
+---
+
+# 🛡️ GitHub Actions IAM Permissions
+
+The GitHub Actions deployment role requires permissions for ECR and ECS.
+
+## ECR
+
+```text
+ecr:GetAuthorizationToken
+
+ecr:BatchCheckLayerAvailability
+ecr:CompleteLayerUpload
+ecr:InitiateLayerUpload
+ecr:PutImage
+ecr:UploadLayerPart
+
+ecr:BatchGetImage
+ecr:GetDownloadUrlForLayer
+```
+
+## ECS
+
+```text
+ecs:DescribeServices
+ecs:DescribeTaskDefinition
+ecs:DescribeTasks
+ecs:ListTasks
+ecs:RegisterTaskDefinition
+ecs:UpdateService
+```
+
+## IAM
+
+```text
+iam:PassRole
+```
+
+The `iam:PassRole` permission should be restricted to the ECS execution role.
+
+---
+
+# 🔐 IAM Role Separation
+
+There are two major roles.
+
+## ECS Execution Role
+
+```text
+kubemind-dev-ecs-task-execution-role
+```
+
+Used by ECS to:
+
+```text
+Pull image from ECR
+        +
+Write logs to CloudWatch
+```
+
+---
+
+## GitHub Actions Deployment Role
+
+```text
+kubemind-github-actions-role
+```
+
+Used by GitHub Actions to:
+
+```text
+Authenticate through OIDC
+        +
+Push Docker image to ECR
+        +
+Read ECS task definition
+        +
+Register ECS task definition
+        +
+Update ECS service
+```
+
+The GitHub Actions deployment role is not a full Terraform administrator role.
+
+---
+
+# 🔄 Phase 13 — GitHub Actions CI/CD
+
+Workflow file:
+
+```text
 .github/workflows/deploy.yml
+```
 
+Complete workflow:
+
+```yaml
 name: KubeMind AI CI/CD
 
 on:
@@ -702,11 +1544,15 @@ env:
   CONTAINER_NAME: kubemind-app
 
 jobs:
+
   deploy:
+
     name: Test, Build and Deploy
+
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout source
         uses: actions/checkout@v4
 
@@ -805,162 +1651,500 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+```
 
-Pipeline stages
+Replace:
 
-Checkout
-   ↓
-Python setup
-   ↓
-Install dependencies
-   ↓
-pytest
-   ↓
-OIDC → AWS IAM
-   ↓
-Verify identity
-   ↓
-ECR login
-   ↓
-Docker build
-   ↓
-Docker push
-   ↓
-Download ECS task definition
-   ↓
-Render new image
-   ↓
-Deploy ECS
-   ↓
-Wait for stability
+```text
+ACCOUNT_ID
+```
 
-The Docker image is tagged with:
+with your AWS account ID.
 
-${{ github.sha }}
+---
 
-This gives traceability:
+# 🔄 CI/CD Pipeline Flow
 
+```text
+1. Developer
+      |
+      | git push
+      v
+2. GitHub
+      |
+      v
+3. GitHub Actions
+      |
+      v
+4. Checkout source
+      |
+      v
+5. Setup Python
+      |
+      v
+6. Install dependencies
+      |
+      v
+7. Run pytest
+      |
+      +------ FAIL ------> STOP
+      |
+      v
+8. GitHub OIDC
+      |
+      v
+9. AWS STS
+      |
+      v
+10. IAM Deployment Role
+      |
+      v
+11. Verify AWS identity
+      |
+      v
+12. ECR Login
+      |
+      v
+13. Docker Build
+      |
+      v
+14. Docker Push
+      |
+      v
+15. Download ECS Task Definition
+      |
+      v
+16. Render new image
+      |
+      v
+17. Register new Task Definition
+      |
+      v
+18. Update ECS Service
+      |
+      v
+19. Wait for Stability
+      |
+      v
+20. Fargate Tasks
+      |
+      v
+21. ALB
+      |
+      v
+22. KubeMind AI LIVE
+```
+
+---
+
+# 🏷️ Immutable Docker Image Tagging
+
+The pipeline does not deploy using:
+
+```text
+latest
+```
+
+Instead it uses:
+
+```yaml
+IMAGE_TAG: ${{ github.sha }}
+```
+
+Example:
+
+```text
+kubemind-app:a83f72c...
+```
+
+This creates traceability:
+
+```text
 Git Commit
-    ↕
+     |
+     v
+GitHub Actions
+     |
+     v
 Docker Image
-    ↕
+     |
+     v
+Amazon ECR
+     |
+     v
 ECS Task Definition
+     |
+     v
+Running Container
+```
 
-16. Phase 11 --- End-to-End Verification
+This allows you to identify exactly which Git commit is running.
 
-Get the ALB DNS:
+---
 
+# 🔍 Phase 14 — GitHub Actions Verification
+
+Open the GitHub Actions page for the repository.
+
+The workflow should show:
+
+```text
+Test, Build and Deploy
+```
+
+Expected stages:
+
+```text
+Checkout source                 ✅
+Setup Python                    ✅
+Install dependencies            ✅
+Run tests                       ✅
+Configure AWS credentials       ✅
+Verify AWS identity             ✅
+Login to Amazon ECR             ✅
+Build Docker image              ✅
+Push Docker image               ✅
+Download task definition        ✅
+Clean task definition           ✅
+Render new task definition      ✅
+Deploy to Amazon ECS            ✅
+```
+
+---
+
+# 🔐 Verify OIDC Authentication
+
+The `Configure AWS credentials` step should contain something similar to:
+
+```text
+Assuming role with OIDC
+
+Authenticated as assumedRoleId
+```
+
+The following step:
+
+```text
+Verify AWS identity
+```
+
+should return an ARN similar to:
+
+```text
+arn:aws:sts::ACCOUNT_ID:assumed-role/kubemind-github-actions-role/...
+```
+
+This proves GitHub Actions successfully assumed the AWS IAM role using OIDC.
+
+---
+
+# 🌐 Phase 15 — ALB Verification
+
+Move into Terraform:
+
+```bash
 cd /home/ec2-user/.alamgir/kubemind-aws-devops/terraform
+```
 
+Get ALB DNS:
+
+```bash
 terraform output -raw alb_dns_name
+```
 
-Test application:
+Example:
 
+```text
+kubemind-dev-alb-xxxxxxxxxx.ap-south-1.elb.amazonaws.com
+```
+
+---
+
+# 🧪 Test Application Through ALB
+
+```bash
 curl http://$(terraform output -raw alb_dns_name)/
+```
 
 Expected:
 
+```text
 🚀 KubeMind AI is running!
+```
 
-Test health:
+---
 
+# ❤️ Test Health Endpoint
+
+```bash
 curl http://$(terraform output -raw alb_dns_name)/health
+```
 
 Expected:
 
-{"status":"healthy"}
+```json
+{
+  "status": "healthy"
+}
+```
 
-Verify ECS:
+---
 
+# 🚢 Verify ECS Service
+
+Run:
+
+```bash
 aws ecs describe-services \
   --cluster kubemind-dev-cluster \
   --services kubemind-dev-service \
   --query 'services[0].{Desired:desiredCount,Running:runningCount,Pending:pendingCount,Status:status,TaskDefinition:taskDefinition}' \
   --output table
+```
 
 Expected:
 
-Desired   Pending   Running   Status
-2         0         2         ACTIVE
+```text
+---------------------------------------------------------------
+|                    DescribeServices                         |
++----------+---------+---------+--------+---------------------+
+| Desired  | Pending | Running | Status | TaskDefinition      |
++----------+---------+---------+--------+---------------------+
+| 2        | 0       | 2       | ACTIVE | ...:kubemind-dev-app|
++----------+---------+---------+--------+---------------------+
+```
 
-A successful CI/CD deployment produced:
+---
 
+# 📋 List ECS Tasks
+
+```bash
+aws ecs list-tasks \
+  --cluster kubemind-dev-cluster \
+  --service-name kubemind-dev-service
+```
+
+Expected:
+
+```text
+2 running tasks
+```
+
+---
+
+# ❤️ Check Target Health
+
+```bash
+aws elbv2 describe-target-health \
+  --target-group-arn TARGET_GROUP_ARN
+```
+
+Expected:
+
+```text
+healthy
+healthy
+```
+
+---
+
+# 📈 ECS Task Definition Revisions
+
+Initial deployment:
+
+```text
+kubemind-dev-app:1
+```
+
+After GitHub Actions:
+
+```text
 kubemind-dev-app:2
+```
 
-meaning the ECS task definition advanced from the initial revision.
+Future deployments:
 
-17. IAM Security Model
+```text
+kubemind-dev-app:3
+kubemind-dev-app:4
+kubemind-dev-app:5
+...
+```
 
-There are two important roles.
+Each ECS task definition revision represents a deployment configuration.
 
-ECS execution role
+---
 
-kubemind-dev-ecs-task-execution-role
+# 🧪 Phase 16 — Perform a Complete Deployment Test
 
-Used by ECS to:
+Modify the application:
 
-pull private images from ECR
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops
 
-write application logs to CloudWatch
+nano app/src/app.py
+```
 
-GitHub Actions deployment role
+Change:
 
-kubemind-github-actions-role
+```python
+@app.route("/")
+def home():
+    return "🚀 KubeMind AI is running!"
+```
 
-Used by GitHub Actions to:
+to:
 
-assume AWS through OIDC
+```python
+@app.route("/")
+def home():
+    return "🚀 KubeMind AI v2 is running!"
+```
 
-push images to ECR
+---
 
-read ECS task definitions
+# 🧪 Run Tests
 
-register new task definitions
+```bash
+cd app
+pytest -v
+```
 
-update ECS services
+Expected:
 
-describe ECS resources
+```text
+2 passed
+```
 
-pass the ECS execution role
+Return to root:
 
-The deployment role is not a full Terraform administrator role.
+```bash
+cd ..
+```
 
-Keep infrastructure provisioning permissions separate from application
-deployment permissions.
+---
 
-18. Troubleshooting
+# 📤 Commit the Change
 
-OIDC error
+```bash
+git add .
+```
+
+Commit:
+
+```bash
+git commit -m "Update KubeMind application"
+```
+
+Push:
+
+```bash
+git push origin main
+```
+
+---
+
+# 🔄 What Happens Automatically?
+
+```text
+git push
+   |
+   v
+GitHub Actions
+   |
+   v
+Run Tests
+   |
+   v
+OIDC Authentication
+   |
+   v
+AWS IAM
+   |
+   v
+ECR Login
+   |
+   v
+Docker Build
+   |
+   v
+Docker Push
+   |
+   v
+New ECS Task Definition
+   |
+   v
+ECS Deployment
+   |
+   v
+Fargate
+   |
+   v
+ALB
+   |
+   v
+New Application Version
+```
+
+---
+
+# 🛠️ Troubleshooting
+
+# 1. OIDC AssumeRole Error
 
 Error:
 
+```text
 Could not assume role with OIDC:
 Not authorized to perform sts:AssumeRoleWithWebIdentity
+```
 
 Check:
 
+```bash
 aws iam get-role \
   --role-name kubemind-github-actions-role \
-  --query 'Role.AssumeRolePolicyDocument'
+  --query 'Role.AssumeRolePolicyDocument' \
+  --output json
+```
 
-Verify:
+Verify audience:
 
-aud = sts.amazonaws.com
+```text
+sts.amazonaws.com
+```
 
-and:
+Verify subject:
 
+```text
 repo:Alamgir00@46954227/kubemind-aws-devops@1364813519:ref:refs/heads/main
+```
 
-ECR AccessDenied
+Make sure:
 
-Inspect the deployment role policy:
+* Repository name is correct.
+* Owner is correct.
+* Owner ID is correct.
+* Repository ID is correct.
+* Branch is `main`.
+* OIDC provider exists.
+* IAM role trust policy is updated.
 
+---
+
+# 2. ECR AccessDenied
+
+Inspect IAM policy:
+
+```bash
 aws iam get-role-policy \
   --role-name kubemind-github-actions-role \
   --policy-name KubeMindGitHubActionsDeploymentPolicy
+```
 
-Required ECR actions include:
+Verify ECR permissions:
 
+```text
 ecr:GetAuthorizationToken
 ecr:BatchCheckLayerAvailability
 ecr:CompleteLayerUpload
@@ -969,253 +2153,829 @@ ecr:PutImage
 ecr:UploadLayerPart
 ecr:BatchGetImage
 ecr:GetDownloadUrlForLayer
+```
 
-ECS deployment failure
+---
 
+# 3. ECS Deployment Failure
+
+Check service:
+
+```bash
 aws ecs describe-services \
   --cluster kubemind-dev-cluster \
   --services kubemind-dev-service
+```
 
 List tasks:
 
+```bash
 aws ecs list-tasks \
   --cluster kubemind-dev-cluster \
   --service-name kubemind-dev-service
+```
 
-Describe a task:
+Describe tasks:
 
+```bash
 aws ecs describe-tasks \
   --cluster kubemind-dev-cluster \
   --tasks TASK_ARN
+```
 
-Stopped ECS task
+---
 
+# 4. ECS Task Stopped
+
+Check stopped reason:
+
+```bash
 aws ecs describe-tasks \
   --cluster kubemind-dev-cluster \
   --tasks TASK_ARN \
   --query 'tasks[0].{StopCode:stopCode,StoppedReason:stoppedReason}'
+```
 
-Container details:
+Check container:
 
+```bash
 aws ecs describe-tasks \
   --cluster kubemind-dev-cluster \
   --tasks TASK_ARN \
   --query 'tasks[0].containers[].{Name:name,Reason:reason,ExitCode:exitCode}'
+```
 
-ALB returns 503
+---
 
-Check:
+# 5. ALB Returns 503
 
+Check target health:
+
+```bash
 aws elbv2 describe-target-health \
   --target-group-arn TARGET_GROUP_ARN
+```
 
 Expected:
 
+```text
 healthy
 healthy
+```
 
 Verify:
 
-ALB listener = 80
-Target = 8080
-Health path = /health
-Container = 8080
+```text
+ALB Listener
+    |
+    +--> Port 80
+    |
+    v
+Target Group
+    |
+    +--> Port 8080
+    |
+    v
+ECS Container
+    |
+    +--> Port 8080
+    |
+    v
+Health Check
+    |
+    +--> /health
+```
 
-Terraform output is empty
+---
 
-Run Terraform commands from:
+# 6. ECS Tasks Are Not Starting
 
-/home/ec2-user/.alamgir/kubemind-aws-devops/terraform
+Check service events:
 
-Correct:
+```bash
+aws ecs describe-services \
+  --cluster kubemind-dev-cluster \
+  --services kubemind-dev-service \
+  --query 'services[0].events[0:10]'
+```
 
-cd /home/ec2-user/.alamgir/kubemind-aws-devops/terraform
-terraform output -raw alb_dns_name
+Look for:
 
-19. Useful Commands
+```text
+CannotPullContainerError
+ResourceInitializationError
+Health check failed
+CannotStartContainerError
+```
 
-AWS
+---
 
-aws sts get-caller-identity
+# 7. Docker Image Cannot Be Pulled
 
-aws ecr describe-repositories \
-  --region ap-south-1
+Check ECR:
 
+```bash
 aws ecr describe-images \
   --repository-name kubemind-app \
   --region ap-south-1
+```
 
-aws ecs list-clusters
+Verify:
 
+```text
+Image exists
+Correct repository
+Correct tag
+Correct region
+```
+
+---
+
+# 8. Terraform Output Is Empty
+
+Terraform outputs must be executed from the Terraform directory.
+
+Correct:
+
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops/terraform
+```
+
+Then:
+
+```bash
+terraform output -raw alb_dns_name
+```
+
+Do not execute from:
+
+```text
+/home/ec2-user/.alamgir/kubemind-aws-devops
+```
+
+unless using the appropriate Terraform working directory/state.
+
+---
+
+# ☁️ Useful AWS Commands
+
+## Current Identity
+
+```bash
+aws sts get-caller-identity
+```
+
+---
+
+## ECR Repositories
+
+```bash
+aws ecr describe-repositories \
+  --region ap-south-1
+```
+
+---
+
+## ECR Images
+
+```bash
+aws ecr describe-images \
+  --repository-name kubemind-app \
+  --region ap-south-1
+```
+
+---
+
+## ECS Clusters
+
+```bash
+aws ecs list-clusters \
+  --region ap-south-1
+```
+
+---
+
+## ECS Services
+
+```bash
 aws ecs describe-services \
   --cluster kubemind-dev-cluster \
   --services kubemind-dev-service
+```
 
+---
+
+## ECS Tasks
+
+```bash
 aws ecs list-tasks \
   --cluster kubemind-dev-cluster \
   --service-name kubemind-dev-service
+```
 
+---
+
+## ECS Task Definition
+
+```bash
 aws ecs describe-task-definition \
   --task-definition kubemind-dev-app
+```
 
-Terraform
+---
 
+## CloudWatch Log Groups
+
+```bash
+aws logs describe-log-groups \
+  --log-group-name-prefix /ecs/kubemind-dev
+```
+
+---
+
+# 🏗️ Useful Terraform Commands
+
+Initialize:
+
+```bash
 terraform init
+```
+
+Format:
+
+```bash
 terraform fmt -recursive
+```
+
+Validate:
+
+```bash
 terraform validate
+```
+
+Plan:
+
+```bash
 terraform plan
+```
+
+Apply:
+
+```bash
 terraform apply
+```
+
+Show outputs:
+
+```bash
 terraform output
+```
+
+ALB DNS:
+
+```bash
 terraform output -raw alb_dns_name
+```
+
+List resources:
+
+```bash
 terraform state list
+```
+
+Inspect resource:
+
+```bash
 terraform state show RESOURCE
+```
+
+Destroy:
+
+```bash
 terraform destroy
+```
 
-Git
+> ⚠️ `terraform destroy` removes infrastructure. Never run it accidentally against a production environment.
 
+---
+
+# 🐙 Useful Git Commands
+
+Check status:
+
+```bash
 git status
+```
+
+View history:
+
+```bash
 git log --oneline --graph --decorate --all
-git add .
-git commit -m "Update application"
-git push origin main
-git pull origin main
-git remote -v
-
-20. Production Hardening Roadmap
-
-The core deployment is working. The next production-grade improvements
-are:
-
-20.1 Separate CI and CD
-
-Pull Request
-   |
-   v
-CI
-├── Lint
-├── Unit tests
-├── Security scans
-└── Docker build test
-
-main
- |
- v
-CD
-├── Build
-├── Push ECR
-├── Deploy ECS
-└── Verify
-
-20.2 Terraform CI/CD
-
-Use separate OIDC roles:
-
-GitHub Terraform Plan Role
-GitHub Terraform Apply Role
-GitHub Application Deployment Role
-
-Pipeline:
-
-PR
- |
- +--> terraform fmt -check
- +--> terraform validate
- +--> terraform plan
- |
- v
-Approval
- |
- v
-terraform apply
-
-20.3 Security
+```
 
 Add:
 
-Trivy
-CodeQL
-Dependabot
-Secret scanning
-IaC scanning
-Container vulnerability scanning
+```bash
+git add .
+```
 
-20.4 Deployment strategies
+Commit:
+
+```bash
+git commit -m "Update application"
+```
+
+Push:
+
+```bash
+git push origin main
+```
+
+Pull:
+
+```bash
+git pull origin main
+```
+
+Remote:
+
+```bash
+git remote -v
+```
+
+Branches:
+
+```bash
+git branch
+```
+
+---
+
+# 🐳 Useful Docker Commands
+
+List images:
+
+```bash
+docker images
+```
+
+List running containers:
+
+```bash
+docker ps
+```
+
+List all containers:
+
+```bash
+docker ps -a
+```
+
+Build:
+
+```bash
+docker build -t kubemind-app:latest .
+```
+
+Run:
+
+```bash
+docker run -d \
+  --name kubemind-app \
+  -p 8080:8080 \
+  kubemind-app:latest
+```
+
+Logs:
+
+```bash
+docker logs kubemind-app
+```
+
+Stop:
+
+```bash
+docker stop kubemind-app
+```
+
+Remove:
+
+```bash
+docker rm kubemind-app
+```
+
+---
+
+# 🔐 Security Architecture
+
+The project follows several security principles.
+
+## 1. No Long-Lived AWS Credentials in GitHub
+
+Instead of:
+
+```text
+GitHub
+   |
+   | Permanent AWS Access Key
+   v
+AWS
+```
+
+we use:
+
+```text
+GitHub
+   |
+   | OIDC Token
+   v
+AWS STS
+   |
+   v
+Temporary Credentials
+```
+
+---
+
+# 2. Private ECS Tasks
+
+ECS tasks run in private subnets:
+
+```text
+Internet
+    |
+    X
+    |
+    X
+ECS Task
+```
+
+The application is accessed through:
+
+```text
+Internet
+    |
+    v
+ALB
+    |
+    v
+ECS
+```
+
+---
+
+# 3. Security Group Restriction
+
+```text
+Internet
+    |
+    | TCP 80
+    v
+ALB Security Group
+    |
+    | TCP 8080
+    v
+ECS Security Group
+    |
+    v
+Fargate Tasks
+```
+
+---
+
+# 4. IAM Least Privilege
+
+The GitHub deployment role only receives the permissions required for:
+
+```text
+ECR
++
+ECS
++
+iam:PassRole
+```
+
+Terraform infrastructure permissions should remain separate.
+
+---
+
+# 5. Immutable Image Tags
+
+Instead of:
+
+```text
+latest
+```
+
+the CI/CD pipeline uses:
+
+```text
+github.sha
+```
+
+Example:
+
+```text
+kubemind-app:8e91a23...
+```
+
+---
+
+# 🚀 Production Hardening Roadmap
+
+The current project successfully demonstrates the core deployment platform.
+
+The next step is to harden the architecture for production.
+
+---
+
+# Phase A — Separate CI and CD
 
 Current:
 
-Rolling deployment
+```text
+Git Push
+    |
+    v
+Test
+    |
+    v
+Build
+    |
+    v
+Deploy
+```
 
-Future:
+Recommended:
 
-Blue/Green
-Canary
-Progressive delivery
-Automatic rollback
+```text
+Pull Request
+      |
+      v
++----------------------+
+| CI                   |
+|                      |
+| Lint                 |
+| Unit Tests           |
+| Security Scan        |
+| Docker Build Test    |
++----------------------+
+```
 
-20.5 Observability
+Then:
+
+```text
+main
+ |
+ v
++----------------------+
+| CD                   |
+|                      |
+| Build Image          |
+| Push ECR             |
+| Deploy ECS            |
+| Verify Deployment    |
++----------------------+
+```
+
+---
+
+# Phase B — Terraform CI/CD
+
+Recommended pipeline:
+
+```text
+Pull Request
+      |
+      +--> terraform fmt -check
+      |
+      +--> terraform validate
+      |
+      +--> terraform plan
+      |
+      v
+Approval
+      |
+      v
+terraform apply
+```
+
+Separate IAM roles:
+
+```text
+GitHub Terraform Plan Role
+GitHub Terraform Apply Role
+GitHub Application Deployment Role
+```
+
+Do not give the application deployment role unrestricted Terraform permissions.
+
+---
+
+# Phase C — Security Scanning
+
+Recommended tools:
+
+```text
+Trivy
+CodeQL
+Dependabot
+GitHub Secret Scanning
+IaC Security Scanning
+Container Vulnerability Scanning
+```
+
+Pipeline:
+
+```text
+Source Code
+     |
+     +--> SAST
+     |
+     +--> Dependency Scan
+     |
+     +--> Secret Scan
+     |
+     +--> IaC Scan
+     |
+     +--> Container Scan
+     |
+     v
+Deployment
+```
+
+---
+
+# Phase D — Deployment Strategies
+
+Current:
+
+```text
+Rolling Deployment
+```
+
+Future options:
+
+```text
+Blue/Green Deployment
+```
+
+```text
+Canary Deployment
+```
+
+```text
+Progressive Delivery
+```
 
 Add:
 
-CloudWatch
-├── Logs
-├── Metrics
-└── Alarms
+```text
+Automatic Rollback
+```
 
-ALB
-├── 4xx
-├── 5xx
-└── Latency
+when deployment health checks fail.
 
-ECS
-├── CPU
-├── Memory
-└── Running task count
+---
 
-20.6 Secrets
+# Phase E — Observability
 
-Do not put credentials in:
+Recommended monitoring:
 
+```text
+                    CloudWatch
+                        |
+          +-------------+-------------+
+          |             |             |
+          v             v             v
+        Logs         Metrics        Alarms
+```
+
+Monitor:
+
+```text
+ECS CPU
+ECS Memory
+Running Tasks
+Desired Tasks
+ALB 4xx
+ALB 5xx
+ALB Latency
+Target Health
+Container Restarts
+```
+
+---
+
+# Phase F — Secrets Management
+
+Never store secrets in:
+
+```text
 Git
 Dockerfile
 Terraform source
-README
-Workflow YAML
+README.md
+GitHub workflow YAML
+```
 
 Use:
 
+```text
 AWS Secrets Manager
+```
+
+or:
+
+```text
 AWS Systems Manager Parameter Store
-GitHub encrypted secrets
+```
 
-21. Lessons Learned
+---
 
-Terraform
+# Phase G — Environment Strategy
 
-Terraform manages the infrastructure lifecycle:
+Future environment structure:
 
-Terraform
+```text
+Development
+     |
+     v
+Staging
+     |
+     v
+Production
+```
+
+Example:
+
+```text
+GitHub
    |
-   +--> VPC
-   +--> Networking
-   +--> ALB
-   +--> IAM
-   +--> ECS
-   +--> CloudWatch
+   +--> dev
+   |
+   +--> staging
+   |
+   +--> production
+```
 
-Docker
+Production deployment should use:
+
+```text
+Manual Approval
++
+Protected Environment
++
+Restricted IAM Role
+```
+
+---
+
+# 🧠 DevOps Concepts Learned
+
+## Terraform
+
+Terraform manages infrastructure:
+
+```text
+Terraform
+    |
+    +--> VPC
+    +--> Subnets
+    +--> Route Tables
+    +--> Internet Gateway
+    +--> NAT Gateway
+    +--> Security Groups
+    +--> ALB
+    +--> IAM
+    +--> ECS
+    +--> CloudWatch
+```
+
+---
+
+# 🐳 Docker
 
 Docker packages:
 
+```text
 Application
-+
+     +
 Dependencies
-+
+     +
 Runtime
-=
-Container Image
+     |
+     v
+Docker Image
+```
 
-ECR
+---
 
+# 📦 Amazon ECR
+
+ECR stores Docker images:
+
+```text
 Docker Build
      |
      v
@@ -1223,153 +2983,694 @@ Docker Image
      |
      v
 Amazon ECR
+```
 
-ECS
+---
 
+# 🚢 Amazon ECS
+
+ECS manages containers:
+
+```text
 ECR Image
-    |
-    v
+     |
+     v
 Task Definition
+     |
+     v
+ECS Service
+     |
+     v
+Fargate Tasks
+```
+
+---
+
+# 🌐 Application Load Balancer
+
+ALB routes application traffic:
+
+```text
+Internet
     |
     v
-Fargate Task
+ALB :80
+    |
+    v
+Target Group :8080
+    |
+    v
+ECS Fargate
+```
 
-ALB
+---
 
-Internet
-   |
-   v
-ALB
-   |
-   v
-Target Group
-   |
-   v
-ECS Tasks
+# 🔑 GitHub OIDC
 
-OIDC
+OIDC enables keyless AWS authentication:
 
-GitHub
-  |
-  | short-lived token
-  v
+```text
+GitHub Actions
+      |
+      | OIDC
+      v
 AWS STS
-  |
-  v
-Temporary credentials
+      |
+      v
+Temporary Credentials
+      |
+      v
+AWS Resources
+```
 
-No long-lived AWS access key is required for the GitHub deployment
-workflow.
+---
 
-Immutable image tagging
+# 🏷️ Deployment Traceability
 
-Instead of:
+The deployment creates a relationship:
 
-latest
+```text
+Git Commit
+     |
+     v
+GitHub Actions
+     |
+     v
+Docker Image
+     |
+     v
+ECR
+     |
+     v
+ECS Task Definition
+     |
+     v
+Running Container
+```
 
-the workflow uses:
+This makes it possible to identify which source code version is running.
 
-github.sha
+---
 
-so a deployment can be traced back to the exact Git commit.
+# 🧪 Final End-to-End Validation
 
-22. Final Checklist
+Run:
 
-[✓] GitHub repository
-[✓] Flask application
-[✓] /health endpoint
-[✓] Unit tests
-[✓] Docker image
-[✓] Local container test
-[✓] ECR repository
-[✓] Initial ECR image
-[✓] Terraform S3 backend
-[✓] Terraform initialization
-[✓] VPC
-[✓] Public subnets
-[✓] Private subnets
-[✓] NAT Gateway
-[✓] Internet Gateway
-[✓] ALB
-[✓] Target Group
-[✓] Security Groups
-[✓] ECS Cluster
-[✓] ECS Service
-[✓] Fargate tasks
-[✓] CloudWatch logs
-[✓] ECS execution role
-[✓] GitHub OIDC provider
-[✓] GitHub Actions IAM role
-[✓] Restricted OIDC trust policy
-[✓] OIDC authentication
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops/terraform
+```
+
+Get ALB:
+
+```bash
+terraform output -raw alb_dns_name
+```
+
+Application:
+
+```bash
+curl http://$(terraform output -raw alb_dns_name)/
+```
+
+Expected:
+
+```text
+🚀 KubeMind AI is running!
+```
+
+Health:
+
+```bash
+curl http://$(terraform output -raw alb_dns_name)/health
+```
+
+Expected:
+
+```json
+{
+  "status": "healthy"
+}
+```
+
+ECS:
+
+```bash
+aws ecs describe-services \
+  --cluster kubemind-dev-cluster \
+  --services kubemind-dev-service \
+  --query 'services[0].{Desired:desiredCount,Running:runningCount,Pending:pendingCount,Status:status,TaskDefinition:taskDefinition}' \
+  --output table
+```
+
+Expected:
+
+```text
+Desired   Pending   Running   Status
+2         0         2         ACTIVE
+```
+
+---
+
+# 📋 Final Project Checklist
+
+## Application
+
+```text
+[✓] Flask application created
+[✓] / endpoint created
+[✓] /health endpoint created
+[✓] Python dependencies configured
+[✓] Pytest tests created
+[✓] Tests passing
+```
+
+## Docker
+
+```text
+[✓] Dockerfile created
+[✓] Docker image built
+[✓] Docker container started
+[✓] Application tested locally
+[✓] Health endpoint tested locally
+```
+
+## Amazon ECR
+
+```text
+[✓] ECR repository created
+[✓] Docker authenticated
+[✓] Docker image tagged
+[✓] Docker image pushed
+```
+
+## Terraform
+
+```text
+[✓] Terraform initialized
+[✓] S3 backend configured
+[✓] Remote state configured
+[✓] State locking configured
+[✓] VPC created
+[✓] Public subnets created
+[✓] Private subnets created
+[✓] Internet Gateway created
+[✓] NAT Gateway created
+[✓] Route tables created
+[✓] Security Groups created
+[✓] Application Load Balancer created
+[✓] Target Group created
+[✓] ECS Cluster created
+[✓] ECS Service created
+[✓] Task Definition created
+[✓] IAM roles created
+[✓] CloudWatch log group created
+```
+
+## ECS
+
+```text
+[✓] ECS service ACTIVE
+[✓] Desired tasks = 2
+[✓] Running tasks = 2
+[✓] Pending tasks = 0
+[✓] Target 1 healthy
+[✓] Target 2 healthy
+```
+
+## GitHub
+
+```text
+[✓] GitHub repository created
+[✓] Git initialized
+[✓] Remote configured
+[✓] Main branch configured
+[✓] Source pushed
+```
+
+## GitHub OIDC
+
+```text
+[✓] GitHub OIDC provider configured
+[✓] IAM deployment role created
+[✓] Trust policy configured
+[✓] Repository restricted
+[✓] Main branch restricted
+[✓] OIDC authentication successful
+[✓] AWS identity verified
+```
+
+## GitHub Actions
+
+```text
+[✓] Workflow created
+[✓] Python setup
+[✓] Dependency installation
+[✓] Automated tests
+[✓] AWS OIDC authentication
 [✓] ECR login
 [✓] Docker build
 [✓] Docker push
-[✓] ECS task definition update
+[✓] ECS task definition rendered
 [✓] ECS deployment
-[✓] ECS stability
+[✓] ECS service stability verified
+```
+
+## Runtime
+
+```text
+[✓] ALB accessible
+[✓] Application endpoint working
+[✓] Health endpoint working
+[✓] ECS service ACTIVE
 [✓] 2/2 tasks running
-[✓] ALB endpoint
-[✓] /health endpoint
+[✓] New task definition revision deployed
+```
 
-🏁 Final Result
+---
 
-                    KUBEMIND AI
-                 AWS DEVOPS LAB
+# 🏆 Final Architecture
 
-Developer
-    |
-    | git push
-    v
+```text
+                         KUBEMIND AI
+                    AWS DEVOPS PLATFORM
+
+
+                         DEVELOPER
+                             |
+                             |
+                       git push main
+                             |
+                             v
+                     +---------------+
+                     |    GitHub     |
+                     |   Repository  |
+                     +-------+-------+
+                             |
+                             v
+                   +-------------------+
+                   | GitHub Actions    |
+                   +---------+---------+
+                             |
+              +--------------+--------------+
+              |                             |
+              v                             v
+         Python Tests                  GitHub OIDC
+              |                             |
+              |                             v
+              |                         AWS STS
+              |                             |
+              |                             v
+              |                      AWS IAM Role
+              |                             |
+              |                 +-----------+-----------+
+              |                 |                       |
+              |                 v                       v
+              |                ECR                     ECS
+              |                 |                       |
+              |                 |               Task Definition
+              |                 |                       |
+              |                 +-----------------------+
+              |                                         |
+              |                                         v
+              |                                  Fargate × 2
+              |                                         |
+              |                                         v
+              |                                        ALB
+              |                                         |
+              +-----------------------------------------+
+                                                        |
+                                                        v
+                                                🚀 KubeMind AI
+```
+
+---
+
+# 🔄 Complete CI/CD Lifecycle
+
+```text
+                     SOURCE
+                       |
+                       v
+                 GitHub Repository
+                       |
+                       v
+                 GitHub Actions
+                       |
+                       v
+                  Unit Testing
+                       |
+                       v
+                  OIDC Login
+                       |
+                       v
+                   AWS IAM
+                       |
+                       v
+                  Docker Build
+                       |
+                       v
+                     ECR
+                       |
+                       v
+               Docker Image
+                       |
+                       v
+             ECS Task Definition
+                       |
+                       v
+               ECS Fargate
+                       |
+                       v
+              Application Load
+                 Balancer
+                       |
+                       v
+                 APPLICATION
+                       |
+                       v
+                  HEALTH CHECK
+                       |
+                       v
+                    SUCCESS
+```
+
+---
+
+# 🎯 Final Project Result
+
+The KubeMind AI project successfully demonstrates:
+
+```text
 GitHub
-    |
-    v
+   ↓
 GitHub Actions
-    |
-    +---- pytest ------------------+
-    |                              |
-    +---- OIDC ----------------+   |
-    |                          |   |
-    v                          v   |
-AWS STS / IAM              ECR <---+
-    |                          |
-    |                          | Docker image
-    |                          v
-    |                       ECS
-    |                          |
-    |                     Fargate x2
-    |                          |
-    +--------------------------+
-                               |
-                               v
-                              ALB
-                               |
-                               v
-                      🚀 KubeMind AI
+   ↓
+Automated Tests
+   ↓
+GitHub OIDC
+   ↓
+AWS IAM
+   ↓
+Amazon ECR
+   ↓
+Docker Image
+   ↓
+ECS Task Definition
+   ↓
+Amazon ECS Fargate
+   ↓
+Application Load Balancer
+   ↓
+KubeMind AI
+```
 
-End-to-end CI/CD status: SUCCESSFUL
+Final application:
 
-The completed lab demonstrates GitHub Actions → OIDC → AWS IAM → ECR →
-ECS Fargate → ALB with Terraform-managed infrastructure.
+```text
+🚀 KubeMind AI is running!
+```
 
-Official References
+Health:
 
-GitHub README:
-https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes
+```json
+{
+  "status": "healthy"
+}
+```
 
-GitHub OIDC + AWS:
-https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+ECS:
 
-AWS OIDC federation:
-https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html
+```text
+Desired = 2
+Running = 2
+Pending = 0
+Status  = ACTIVE
+```
 
-GitHub ECS deployment:
-https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/amazon-elastic-container-service
+---
 
-AWS ECR with ECS:
-https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_on_ECS.html
+# 📚 Official Documentation
 
-Author: SK Alamgir Ali
-Project: KubeMind AI --- AWS DevOps & Cloud Architecture
-Track: Terraform + Docker + AWS + GitHub Actions + ECS Fargate
-Status: End-to-End CI/CD Successfully Deployed 🚀
+## GitHub
+
+GitHub README documentation:
+
+[https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes)
+
+GitHub Actions:
+
+[https://docs.github.com/en/actions](https://docs.github.com/en/actions)
+
+GitHub OIDC:
+
+[https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws)
+
+---
+
+## AWS
+
+AWS IAM:
+
+[https://docs.aws.amazon.com/IAM/latest/UserGuide/](https://docs.aws.amazon.com/IAM/latest/UserGuide/)
+
+AWS OIDC:
+
+[https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html)
+
+Amazon ECR:
+
+[https://docs.aws.amazon.com/AmazonECR/latest/userguide/](https://docs.aws.amazon.com/AmazonECR/latest/userguide/)
+
+Amazon ECS:
+
+[https://docs.aws.amazon.com/AmazonECS/latest/developerguide/](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/)
+
+AWS Fargate:
+
+[https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html)
+
+Application Load Balancer:
+
+[https://docs.aws.amazon.com/elasticloadbalancing/latest/application/](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/)
+
+Amazon VPC:
+
+[https://docs.aws.amazon.com/vpc/latest/userguide/](https://docs.aws.amazon.com/vpc/latest/userguide/)
+
+Amazon CloudWatch:
+
+[https://docs.aws.amazon.com/cloudwatch/](https://docs.aws.amazon.com/cloudwatch/)
+
+---
+
+## Terraform
+
+Terraform Documentation:
+
+[https://developer.hashicorp.com/terraform/docs](https://developer.hashicorp.com/terraform/docs)
+
+Terraform AWS Provider:
+
+[https://registry.terraform.io/providers/hashicorp/aws/latest/docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+
+Terraform S3 Backend:
+
+[https://developer.hashicorp.com/terraform/language/backend/s3](https://developer.hashicorp.com/terraform/language/backend/s3)
+
+---
+
+# 👨‍💻 Author
+
+## SK Alamgir Ali
+
+**Project:**
+
+```text
+KubeMind AI
+```
+
+**Track:**
+
+```text
+AWS DevOps
+Cloud Architecture
+Infrastructure as Code
+CI/CD
+Containerization
+Cloud Security
+```
+
+**Technology Stack:**
+
+```text
+Python
+Flask
+Gunicorn
+Pytest
+Docker
+Terraform
+AWS
+Amazon VPC
+Amazon ECR
+Amazon ECS
+AWS Fargate
+Application Load Balancer
+AWS IAM
+GitHub
+GitHub Actions
+GitHub OIDC
+Amazon CloudWatch
+Amazon S3
+```
+
+---
+
+# 🏁 Project Status
+
+| Component                 | Status      |
+| ------------------------- | ----------- |
+| Python Application        | ✅ Completed |
+| Flask                     | ✅ Completed |
+| Pytest                    | ✅ Completed |
+| Docker                    | ✅ Completed |
+| Amazon ECR                | ✅ Completed |
+| Terraform                 | ✅ Completed |
+| VPC                       | ✅ Completed |
+| Public Subnets            | ✅ Completed |
+| Private Subnets           | ✅ Completed |
+| NAT Gateway               | ✅ Completed |
+| Internet Gateway          | ✅ Completed |
+| Security Groups           | ✅ Completed |
+| Application Load Balancer | ✅ Completed |
+| Target Group              | ✅ Completed |
+| ECS Cluster               | ✅ Completed |
+| ECS Fargate               | ✅ Completed |
+| CloudWatch                | ✅ Completed |
+| IAM                       | ✅ Completed |
+| GitHub Repository         | ✅ Completed |
+| GitHub OIDC               | ✅ Completed |
+| GitHub Actions            | ✅ Completed |
+| Automated CI/CD           | ✅ Completed |
+| Application Verification  | ✅ Completed |
+
+---
+
+# 🚀 Final Achievement
+
+```text
+┌──────────────────────────────────────────────────────┐
+│                                                      │
+│                 KUBEMIND AI                          │
+│                                                      │
+│          AWS DEVOPS CI/CD PLATFORM                   │
+│                                                      │
+│  GitHub                                               │
+│     ↓                                                │
+│  GitHub Actions                                       │
+│     ↓                                                │
+│  Automated Tests                                      │
+│     ↓                                                │
+│  GitHub OIDC                                          │
+│     ↓                                                │
+│  AWS IAM                                              │
+│     ↓                                                │
+│  Amazon ECR                                           │
+│     ↓                                                │
+│  ECS Fargate × 2                                      │
+│     ↓                                                │
+│  Application Load Balancer                            │
+│     ↓                                                │
+│  🚀 KubeMind AI                                       │
+│                                                      │
+│       END-TO-END CI/CD: ✅ SUCCESSFUL                │
+│                                                      │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+# ⭐ What This Project Demonstrates
+
+This project demonstrates the complete DevOps lifecycle:
+
+```text
+PLAN
+  ↓
+CODE
+  ↓
+TEST
+  ↓
+BUILD
+  ↓
+PACKAGE
+  ↓
+PUSH
+  ↓
+DEPLOY
+  ↓
+VERIFY
+  ↓
+MONITOR
+  ↓
+IMPROVE
+```
+
+The final platform connects:
+
+```text
+Application Development
+        +
+Containerization
+        +
+Infrastructure as Code
+        +
+Cloud Infrastructure
+        +
+Identity and Access Management
+        +
+CI/CD
+        +
+Observability
+        =
+Production-Oriented DevOps Platform
+```
+
+---
+
+# 🎓 End of Hands-On Lab
+
+**KubeMind AI — Production-Grade AWS DevOps CI/CD**
+
+```text
+GitHub → GitHub Actions → OIDC → AWS
+       → ECR → ECS Fargate → ALB
+       → KubeMind AI
+```
+
+**Status: 🚀 END-TO-END DEPLOYMENT SUCCESSFUL**
+
+````
+
+### After pasting
+
+Save in `nano`:
+
+```text
+Ctrl + O
+Enter
+Ctrl + X
+````
+
+Then run:
+
+```bash
+cd /home/ec2-user/.alamgir/kubemind-aws-devops
+
+git add README.md
+
+git commit -m "Add complete KubeMind AI hands-on lab documentation"
+
+git push origin main
+```
+
+One important point: in the README, `ACCOUNT_ID` is intentionally a placeholder so you don't unnecessarily publish your AWS account number throughout your documentation. Your actual GitHub Actions workflow should continue using the real account ID where required.
