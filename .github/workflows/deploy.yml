@@ -1,0 +1,136 @@
+name: KubeMind AI CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: kubemind-app
+  ECS_CLUSTER: kubemind-dev-cluster
+  ECS_SERVICE: kubemind-dev-service
+  CONTAINER_NAME: kubemind-app
+
+jobs:
+  deploy:
+    name: Test, Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Checkout source
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # 2. Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        working-directory: app
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      # 4. Run tests
+      - name: Run tests
+        working-directory: app
+        run: |
+          pytest -v
+
+      # 5. Configure AWS using GitHub OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::650694421089:role/kubemind-github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 6. Verify AWS identity
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+
+      # 7. Login to ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 8. Build Docker image
+      - name: Build Docker image
+        working-directory: app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            .
+
+      # 9. Push image to ECR
+      - name: Push Docker image
+        working-directory: app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 10. Update ECS task definition
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition kubemind-dev-app \
+            --query taskDefinition \
+            --output json > task-definition.json
+
+      # 11. Remove fields that cannot be reused
+      - name: Clean task definition
+        run: |
+          python3 - <<'PY'
+          import json
+
+          with open("task-definition.json") as f:
+              data = json.load(f)
+
+          for key in [
+              "taskDefinitionArn",
+              "revision",
+              "status",
+              "requiresAttributes",
+              "compatibilities",
+              "registeredAt",
+              "registeredBy"
+          ]:
+              data.pop(key, None)
+
+          with open("task-definition.json", "w") as f:
+              json.dump(data, f)
+          PY
+
+      # 12. Replace image
+      - name: Render new task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+      # 13. Deploy to ECS
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
