@@ -3647,19 +3647,7 @@ GitHub → GitHub Actions → OIDC → AWS
 
 ````
 
-### After pasting
 
-Save in `nano`:
-
-```text
-Ctrl + O
-Enter
-Ctrl + X
-````
-
-Then run:
-
-```bash
 cd /home/ec2-user/.alamgir/kubemind-aws-devops
 
 git add README.md
@@ -3667,6 +3655,5 @@ git add README.md
 git commit -m "Add complete KubeMind AI hands-on lab documentation"
 
 git push origin main
-```
 
 One important point: in the README, `ACCOUNT_ID` is intentionally a placeholder so you don't unnecessarily publish your AWS account number throughout your documentation. Your actual GitHub Actions workflow should continue using the real account ID where required.
