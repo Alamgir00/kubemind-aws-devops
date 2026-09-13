@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "🚀 KubeMind AI is running!"
+    return "🚀 KubeMind AI is running! by Sakil"
 
 @app.route("/health")
 def health():
