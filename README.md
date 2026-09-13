@@ -1,5 +1,4 @@
 
-````markdown
 # 🚀 KubeMind AI — Production-Grade AWS DevOps CI/CD
 
 <p align="center">
