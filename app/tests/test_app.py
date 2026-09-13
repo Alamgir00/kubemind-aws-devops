@@ -6,17 +6,23 @@ import pytest
 
 def _find_and_add_app_dir():
     """
-    Walk upward from this test file's location looking for app.py, and add
-    the directory that contains it to sys.path. This works regardless of
-    how deep tests/test_app.py is nested (tests/, app/tests/, etc.) and
-    regardless of the CI working directory.
+    Walk upward from this test file's location looking for app.py, checking
+    both the directory itself and a 'src' subdirectory at each level (e.g.
+    app/tests/test_app.py alongside app/src/app.py). Adds the directory that
+    contains app.py to sys.path.
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     for _ in range(6):  # search up to 6 levels up
-        candidate = os.path.join(current_dir, "app.py")
-        if os.path.isfile(candidate):
+        direct_candidate = os.path.join(current_dir, "app.py")
+        if os.path.isfile(direct_candidate):
             sys.path.insert(0, current_dir)
             return current_dir
+
+        src_candidate = os.path.join(current_dir, "src", "app.py")
+        if os.path.isfile(src_candidate):
+            sys.path.insert(0, os.path.join(current_dir, "src"))
+            return os.path.join(current_dir, "src")
+
         parent_dir = os.path.dirname(current_dir)
         if parent_dir == current_dir:
             break
