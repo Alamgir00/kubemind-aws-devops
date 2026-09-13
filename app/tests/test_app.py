@@ -1,4 +1,14 @@
+import os
+import sys
+
 import pytest
+
+# Ensure the project root (where app.py lives) is on sys.path, regardless of
+# whether pytest is run from the repo root or this file sits in a tests/
+# subfolder (e.g. app/tests/test_app.py alongside app/app.py).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from app import app
 
 
