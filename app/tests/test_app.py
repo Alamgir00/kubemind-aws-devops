@@ -3,11 +3,35 @@ import sys
 
 import pytest
 
-# Ensure the project root (where app.py lives) is on sys.path, regardless of
-# whether pytest is run from the repo root or this file sits in a tests/
-# subfolder (e.g. app/tests/test_app.py alongside app/app.py).
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+def _find_and_add_app_dir():
+    """
+    Walk upward from this test file's location looking for app.py, and add
+    the directory that contains it to sys.path. This works regardless of
+    how deep tests/test_app.py is nested (tests/, app/tests/, etc.) and
+    regardless of the CI working directory.
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):  # search up to 6 levels up
+        candidate = os.path.join(current_dir, "app.py")
+        if os.path.isfile(candidate):
+            sys.path.insert(0, current_dir)
+            return current_dir
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:
+            break
+        current_dir = parent_dir
+    return None
+
+
+_app_dir = _find_and_add_app_dir()
+if _app_dir is None:
+    raise ImportError(
+        "Could not locate app.py by searching upward from "
+        f"'{os.path.dirname(os.path.abspath(__file__))}'. "
+        "Confirm app.py is committed to the repo and sits in the same "
+        "folder as (or an ancestor of) the tests/ directory."
+    )
 
 from app import app
 
