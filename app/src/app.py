@@ -144,7 +144,7 @@ CALCULATOR_HTML = """
 
   <div class="brand">
     <h1>🚀 Kube<span>Mind</span> AI</h1>
-    <p>Smart Calculator · by Sakil</p>
+    <p>Smart Calculator · by Das</p>
   </div>
 
   <div class="calculator">
